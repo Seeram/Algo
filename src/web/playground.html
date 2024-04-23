@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Algo</title>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+        }
+        textarea {
+            width: 45%;
+            height: 100%;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input id="clickMe" type="button" value="Execute" onclick="executeCode();" />
+    <div class="container">
+        <textarea id="codeEditor" name="codeEditor" rows="50" cols="50">{{ .Editor.Content }}</textarea>
+        <textarea id="output" name="output" rows="50" cols="50"></textarea>
+        <ul>{{ range .AllPlaygrounds }}<li><a href=/{{ . }}>{{ . }}</a></li> {{ end }}</ul>
+    </div>
+    <script type="application/javascript">
+        editorId = window.location.pathname
+        let socket = new WebSocket(`ws://localhost:8080/ws${editorId}`)
+
+        window.addEventListener("load", (e) => {
+            editorId = window.location.pathname
+        })
+
+        window.addEventListener("beforeunload", () => {
+            socket.close()
+        })
+
+        function onTextInput() {
+            socket.send(document.getElementById('codeEditor').value)
+
+            localStorage.setItem(window.location.pathname, document.getElementById('codeEditor').value)
+        }
+
+        function executeCode() {
+            console.log("Executing code")
+
+            fetch(`http://localhost:8080/execute${editorId}`)
+        }
+
+        socket.onmessage = function(event) {
+            document.getElementById('output').value = event.data
+        }
+
+        socket.onclose = function() {
+            console.log("Closing websocket for: ", editorId)
+        }
+
+        document.getElementById('codeEditor').addEventListener('input', onTextInput);
+    </script>
+</body>
+</html>

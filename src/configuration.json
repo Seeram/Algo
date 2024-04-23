@@ -1,0 +1,20 @@
+{
+  "Redis": {
+    "Host": "redis",
+    "Port": "6379",
+    "Password": ""
+  },
+  "Upgrader": {
+    "ReadBufferSize": 1024,
+    "WriteBufferSize": 1024
+  },
+  "ClientConfiguration": {
+    "WriteDeadlineSeconds": 1,
+    "ReadDeadlineSeconds": 60,
+    "PingPeriodSeconds": 3
+  },
+  "IdGenerator": {
+    "Charset": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+    "Length": 5
+  }
+}

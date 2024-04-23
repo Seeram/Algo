@@ -1,14 +1,17 @@
-package execution
+package models
 
 import (
-	"fmt"
 	"github.com/traefik/yaegi/interp"
 	"github.com/traefik/yaegi/stdlib"
 	"io"
+	"log"
 	"os"
 )
 
-func ExecuteGo(file string) string {
+type ExecutionerModel struct {
+}
+
+func (em ExecutionerModel) Execute(code string, output chan string) {
 	originalStdout := os.Stdout
 	originalStderr := os.Stderr
 	defer func() {
@@ -22,20 +25,20 @@ func ExecuteGo(file string) string {
 	i.Use(stdlib.Symbols)
 	i.Use(interp.Symbols)
 
-	_, err := i.Eval(file)
+	_, err := i.Eval(code)
 
 	if err != nil {
-		return err.Error()
+		output <- err.Error()
 	}
 
 	// read stdout
 	if err = w.Close(); err != nil {
-		fmt.Print("fail")
+		log.Print("Failing to close write pipe")
 	}
 	stdout, err := io.ReadAll(r)
 	if err != nil {
-		fmt.Print("Error reading.")
+		log.Print("Error reading from pipe")
 	}
 
-	return string(stdout)
+	output <- string(stdout)
 }
